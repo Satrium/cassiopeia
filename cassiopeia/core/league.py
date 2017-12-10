@@ -131,7 +131,12 @@ class LeagueEntry(CassiopeiaGhost):
     @lazy_property
     def region(self) -> Region:
         """The region for this champion."""
-        return Region(self._data[LeaguePositionData].region)
+        if hasattr(self._data[LeaguePositionData], "region"):
+            return Region(self._data[LeaguePositionData].region)
+        elif hasattr(self._data[LeaguePositionData], "platformId"):
+            return Platform(self._data[LeaguePositionData].platformId).region
+        else:
+            raise RuntimeError("Neither region nor platform found")
 
     @lazy_property
     def platform(self) -> Platform:
@@ -249,7 +254,7 @@ class SummonerLeagues(SearchableList):
     """A helper class that is simply a searchable list but that also provides the below convenience methods."""
     @property
     def fives(self):
-        return self[Queue.ranked_flex_fives]
+        return self[Queue.ranked_solo_fives]
 
     @property
     def flex(self):
